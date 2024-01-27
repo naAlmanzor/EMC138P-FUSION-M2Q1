@@ -30,13 +30,12 @@ public class LobbyUI : LobbyManager
     
     public string generatedCode;
 
-    [Networked] private bool _hostReady {get; set;}
+    [Networked] public bool _hostReady {get; set;}
 
     private void Awake()
     {
         CreateBtn.onClick.AddListener(() => HostGame());
         JoinBtn.onClick.AddListener(() => EnterCode());
-        // QuitBtn.onClick.AddListener(() => Debug.Log("Exit"));
     }
 
     // Used to generate and host
@@ -45,8 +44,6 @@ public class LobbyUI : LobbyManager
         GenerateCode();
         roomCode.text = generatedCode; //generatedCode;
         StartGame(GameMode.Host);
-
-        Debug.Log(generatedCode);
     }
 
     public void EnterCode()
@@ -59,7 +56,6 @@ public class LobbyUI : LobbyManager
         RoomBtn.onClick.AddListener(() => StartGame(GameMode.Client));
     }
 
-    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
     public void CreatePlayers()
     {
         foreach(var player in _runner.ActivePlayers)
@@ -71,6 +67,11 @@ public class LobbyUI : LobbyManager
             _spawnedCharacters.Add(player, networkPlayerObject);
         }
 
+        RoomPanel.SetActive(false);
+    }
+
+    public void EnterGame()
+    {
         RoomPanel.SetActive(false);
     }
 

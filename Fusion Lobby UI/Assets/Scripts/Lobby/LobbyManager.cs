@@ -113,6 +113,14 @@ public class LobbyManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
+        if(runner.IsServer)
+        {
+            Debug.Log("Host");
+        }
+
+        else{
+            Debug.Log("Client");
+        }
         
         UI.NumberOfPlayers = string.Format("{0}/{1}", runner.ActivePlayers.ToList().Count.ToString(), maxCount.ToString());
 
@@ -122,8 +130,8 @@ public class LobbyManager : MonoBehaviour, INetworkRunnerCallbacks
         
         UI.StartGameButton.gameObject.SetActive(!runner.IsClient);
         UI.roomCode.gameObject.SetActive(!runner.IsClient);
-        // UI.EnterGameButton.gameObject.SetActive(runner.IsClient);
-        UI.waitingText.gameObject.SetActive(runner.IsClient); 
+        UI.EnterGameButton.gameObject.SetActive(runner.IsClient);
+        // UI.waitingText.gameObject.SetActive(runner.IsClient); 
     }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)

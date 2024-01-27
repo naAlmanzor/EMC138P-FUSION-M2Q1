@@ -11,12 +11,13 @@ public class LobbyManager : MonoBehaviour, INetworkRunnerCallbacks
 {
     public NetworkRunner _runner;
     public NetworkPrefabRef _playerPrefab;
+    public int maxCount = 2;
 
     [SerializeField] private LobbyUI UI;
 
     public Dictionary<PlayerRef, NetworkObject> _spawnedCharacters = new Dictionary<PlayerRef, NetworkObject>();
     private bool _mouseButton0;
-
+    
     private void Update()
     {
         _mouseButton0 = _mouseButton0 | Input.GetMouseButton(0);
@@ -40,14 +41,14 @@ public class LobbyManager : MonoBehaviour, INetworkRunnerCallbacks
         await _runner.StartGame(new StartGameArgs()
         {
             GameMode = mode,
-            SessionName = UI.RoomName,
+            SessionName = UI.generatedCode,
+            PlayerCount = maxCount,
             Scene = scene,
             SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()
         });
 
         Debug.Log($"Hosting a game");
     }
-
 
     public void OnConnectedToServer(NetworkRunner runner)
     {
@@ -113,21 +114,16 @@ public class LobbyManager : MonoBehaviour, INetworkRunnerCallbacks
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
         
-        if (runner.IsServer)
-        {
-            UI.LobbyPanel.SetActive(false);
-            UI.RoomPanel.SetActive(true);
-            UI.NumberOfPlayers = runner.ActivePlayers.ToList().Count.ToString();
-            
-        }
-        else
-        {
-            UI.LobbyPanel.SetActive(false);
-            UI.RoomPanel.SetActive(true);
-            UI.NumberOfPlayers = runner.ActivePlayers.ToList().Count.ToString();
-        }
+        UI.NumberOfPlayers = string.Format("{0}/{1}", runner.ActivePlayers.ToList().Count.ToString(), maxCount.ToString());
 
+        UI.LobbyPanel.SetActive(false);
+        UI.InputPanel.SetActive(false);
+        UI.RoomPanel.SetActive(true);
+        
         UI.StartGameButton.gameObject.SetActive(!runner.IsClient);
+        UI.roomCode.gameObject.SetActive(!runner.IsClient);
+        // UI.EnterGameButton.gameObject.SetActive(runner.IsClient);
+        UI.waitingText.gameObject.SetActive(runner.IsClient); 
     }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
@@ -136,7 +132,7 @@ public class LobbyManager : MonoBehaviour, INetworkRunnerCallbacks
         {
             _spawnedCharacters.Remove(player);
         }
-        UI.NumberOfPlayers = runner.ActivePlayers.ToList().Count.ToString();
+        UI.NumberOfPlayers = string.Format("{0}/{1}", runner.ActivePlayers.ToList().Count.ToString(), maxCount.ToString());
     }
 
     public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress)

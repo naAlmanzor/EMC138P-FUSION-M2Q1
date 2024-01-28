@@ -28,9 +28,8 @@ public class LobbyUI : LobbyManager
         set { numberOfPlayers.text = value; }
     }
     
-    public string generatedCode;
-
-    [Networked] public bool _hostReady {get; set;}
+    private string generatedCode;
+    private bool clicked;
 
     private void Awake()
     {
@@ -41,9 +40,18 @@ public class LobbyUI : LobbyManager
     // Used to generate and host
     public void HostGame()
     {
-        GenerateCode();
-        roomCode.text = generatedCode; //generatedCode;
-        StartGame(GameMode.Host);
+
+        // Ensures code and room will only be created once after click
+        if(!clicked)
+        {
+            GenerateCode();
+            roomCode.text = generatedCode; // Display code for Host
+            StartGame(GameMode.Host);
+        }
+        else
+        {
+            Debug.Log("Already Clicked");
+        }
     }
 
     public void EnterCode()
@@ -53,7 +61,7 @@ public class LobbyUI : LobbyManager
         RoomPanel.SetActive(false);
         InputPanel.SetActive(true);
 
-        RoomBtn.onClick.AddListener(() => StartGame(GameMode.Client));
+        RoomBtn.onClick.AddListener(() => CheckCode());
     }
 
     public void CreatePlayers()
@@ -75,11 +83,28 @@ public class LobbyUI : LobbyManager
         RoomPanel.SetActive(false);
     }
 
+    public void CheckCode()
+    {
+        if(string.IsNullOrEmpty(roomName.text))
+        {
+            Debug.Log("No Input, Enter Code!");
+        }
+
+        else
+        {
+            StartGame(GameMode.Client);
+        }
+    }
+
     void GenerateCode(){
         string characters = "abcdefghijklmnopqrstuvwxyz0123456789";
+        
+        //Creates a random code based on characters provided
         for(int i=0; i<8; i++)
         {
             generatedCode += characters[UnityEngine.Random.Range(0, characters.Length)];
         }
+
+        clicked = true;
     }
 }

@@ -11,7 +11,7 @@ public class LobbyManager : MonoBehaviour, INetworkRunnerCallbacks
 {
     public NetworkRunner _runner;
     public NetworkPrefabRef _playerPrefab;
-    public int maxCount = 2;
+    public int maxCount = 2; // Max Players
 
     [SerializeField] private LobbyUI UI;
 
@@ -41,13 +41,11 @@ public class LobbyManager : MonoBehaviour, INetworkRunnerCallbacks
         await _runner.StartGame(new StartGameArgs()
         {
             GameMode = mode,
-            SessionName = UI.generatedCode,
+            SessionName = UI.roomCode.text,
             PlayerCount = maxCount,
             Scene = scene,
             SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>()
         });
-
-        Debug.Log($"Hosting a game");
     }
 
     public void OnConnectedToServer(NetworkRunner runner)
@@ -128,9 +126,9 @@ public class LobbyManager : MonoBehaviour, INetworkRunnerCallbacks
         UI.InputPanel.SetActive(false);
         UI.RoomPanel.SetActive(true);
         
-        UI.StartGameButton.gameObject.SetActive(!runner.IsClient);
-        UI.roomCode.gameObject.SetActive(!runner.IsClient);
-        UI.EnterGameButton.gameObject.SetActive(runner.IsClient);
+        UI.StartGameButton.gameObject.SetActive(!runner.IsClient); // Active when Host
+        UI.roomCode.gameObject.SetActive(!runner.IsClient); // Active when Host
+        UI.EnterGameButton.gameObject.SetActive(runner.IsClient); // Active when Client
         // UI.waitingText.gameObject.SetActive(runner.IsClient); 
     }
 
